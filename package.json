@@ -2,10 +2,10 @@
   "name": "rokuserver",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start-server": "npm start"
+    "start-server": "nodemon server",
+    "start": "node server"
   },
   "keywords": [],
   "author": "",
