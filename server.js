@@ -1,4 +1,3 @@
-//this file is solely for communicating with the database
 const express = require('express');
 const app = express();
 
@@ -10,7 +9,6 @@ app.use((req, res, next) => {
 })
 
 app.use("/api", require("./routes/api"))
-
 
 app.listen(port, () => {
     console.log(`server is running on ${port}`);
