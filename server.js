@@ -8,7 +8,8 @@ app.use((req, res, next) => {
     next();
 })
 
-app.use("/api", require("./routes/api"))
+app.use("/api", require("./routes/api"));
+app.use("/ums", require("./routes/ums"));
 
 app.listen(port, () => {
     console.log(`server is running on ${port}`);
