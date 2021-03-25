@@ -79,7 +79,7 @@ router.get("/tvs/seasons/:id", (req, res) => {
 router.get("/music", (req, res) => {
     connect.getConnection(function (err, connection) {
         if (err) throw err;
-        connection.query('SELECT * FROM tbl_music', function (error, results) {
+        connection.query('SELECT t.*, GROUP_CONCAT(DISTINCT g.genre_name) as genre_name FROM tbl_music t NATURAL LEFT JOIN tbl_musicgenre g NATURAL JOIN tbl_mus_genre GROUP BY t.music_id', function (error, results) {
             connection.release();
             if (error) throw error;
             res.json(results);
@@ -89,7 +89,7 @@ router.get("/music", (req, res) => {
 })
 
 router.get("/*music*/:id/", (req, res) => {
-    connect.query(`SELECT * from tbl_music WHERE music_id=${req.params.id}`, function (error, results, fields) {
+    connect.query(`SELECT t.*, GROUP_CONCAT(DISTINCT g.genre_name) as genre_name FROM tbl_music t NATURAL LEFT JOIN tbl_musicgenre g NATURAL JOIN tbl_mus_genre WHERE music_id=${req.params.id}`, function (error, results, fields) {
         if (error) throw error;
         console.log('results: ', results, "fields: ", fields);
         res.json(results);
