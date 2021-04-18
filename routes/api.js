@@ -15,7 +15,19 @@ router.get("/users", (req, res) => {
     })
 })
 
-router.get("/movies", (req, res) => {
+router.get("/movies/kids", (req, res) => {
+    connect.getConnection(function (err, connection) {
+        if (err) throw err;
+        connection.query(`SELECT DISTINCT m.* , GROUP_CONCAT(DISTINCT g.genre_name) as genre_name, GROUP_CONCAT( DISTINCT c.cast_name) as cast_name, GROUP_CONCAT(DISTINCT d.director_name) as director_name, GROUP_CONCAT(DISTINCT country.country_name) as country_name FROM tbl_movies m LEFT JOIN tbl_mov_genre link ON link.movies_id=m.movies_id LEFT JOIN tbl_genre g ON link.genre_id = g.genre_id LEFT JOIN tbl_mov_cast cast ON cast.movies_id=m.movies_id LEFT JOIN tbl_cast c ON cast.cast_id=c.cast_id LEFT JOIN tbl_mov_director dir ON dir.movies_id=m.movies_id LEFT JOIN tbl_director d ON dir.director_id=d.director_id LEFT JOIN tbl_mov_country country_link ON country_link.movies_id=m.movies_id LEFT JOIN tbl_country country ON country_link.country_id=country.country_id WHERE m.movies_access=0 GROUP BY m.movies_id`, function (error, results) {
+            connection.release();
+            if (error) throw error;
+            res.json(results);
+        });
+    });
+
+})
+
+router.get("/movies/adults", (req, res) => {
     connect.getConnection(function (err, connection) {
         if (err) throw err;
         connection.query(`SELECT DISTINCT m.*, GROUP_CONCAT(DISTINCT g.genre_name) as genre_name, GROUP_CONCAT( DISTINCT c.cast_name) as cast_name, GROUP_CONCAT(DISTINCT d.director_name) as director_name, GROUP_CONCAT(DISTINCT country.country_name) as country_name FROM tbl_movies m LEFT JOIN tbl_mov_genre link ON link.movies_id=m.movies_id LEFT JOIN tbl_genre g ON link.genre_id = g.genre_id LEFT JOIN tbl_mov_cast cast ON cast.movies_id=m.movies_id LEFT JOIN tbl_cast c ON cast.cast_id=c.cast_id LEFT JOIN tbl_mov_director dir ON dir.movies_id=m.movies_id LEFT JOIN tbl_director d ON dir.director_id=d.director_id LEFT JOIN tbl_mov_country country_link ON country_link.movies_id=m.movies_id LEFT JOIN tbl_country country ON country_link.country_id=country.country_id GROUP BY m.movies_id`, function (error, results) {
@@ -44,8 +56,19 @@ router.get("/*movies*/:id/", (req, res) => {
         });
 })
 
+router.get("/tvs/kids", (req, res) => {
+    connect.getConnection(function (err, connection) {
+        if (err) throw err;
+        connection.query('SELECT t.*, GROUP_CONCAT(g.genre_name) as genre_name FROM tbl_tvs t NATURAL LEFT JOIN tbl_genre g NATURAL JOIN tbl_tvs_genre WHERE t.tv_access=0 GROUP BY t.tv_id', function (error, results) {
+            connection.release();
+            if (error) throw error;
+            res.json(results);
+        });
+    });
 
-router.get("/tvs", (req, res) => {
+})
+
+router.get("/tvs/adults", (req, res) => {
     connect.getConnection(function (err, connection) {
         if (err) throw err;
         connection.query('SELECT t.*, GROUP_CONCAT(g.genre_name) as genre_name FROM tbl_tvs t NATURAL LEFT JOIN tbl_genre g NATURAL JOIN tbl_tvs_genre GROUP BY t.tv_id', function (error, results) {
@@ -75,11 +98,21 @@ router.get("/tvs/seasons/:id", (req, res) => {
     });
 
 })
-
-router.get("/music", (req, res) => {
+router.get("/music/kids", (req, res) => {
     connect.getConnection(function (err, connection) {
         if (err) throw err;
-        connection.query('SELECT * FROM tbl_music', function (error, results) {
+        connection.query('SELECT t.*, GROUP_CONCAT(DISTINCT g.genre_name) as genre_name FROM tbl_music t NATURAL LEFT JOIN tbl_musicgenre g NATURAL JOIN tbl_mus_genre WHERE t.mus_access=0 GROUP BY t.music_id', function (error, results) {
+            connection.release();
+            if (error) throw error;
+            res.json(results);
+        });
+    });
+
+})
+router.get("/music/adults", (req, res) => {
+    connect.getConnection(function (err, connection) {
+        if (err) throw err;
+        connection.query('SELECT t.*, GROUP_CONCAT(DISTINCT g.genre_name) as genre_name FROM tbl_music t NATURAL LEFT JOIN tbl_musicgenre g NATURAL JOIN tbl_mus_genre GROUP BY t.music_id', function (error, results) {
             connection.release();
             if (error) throw error;
             res.json(results);
@@ -89,7 +122,7 @@ router.get("/music", (req, res) => {
 })
 
 router.get("/*music*/:id/", (req, res) => {
-    connect.query(`SELECT * from tbl_music WHERE music_id=${req.params.id}`, function (error, results, fields) {
+    connect.query(`SELECT t.*, GROUP_CONCAT(DISTINCT g.genre_name) as genre_name FROM tbl_music t NATURAL LEFT JOIN tbl_musicgenre g NATURAL JOIN tbl_mus_genre WHERE music_id=${req.params.id}`, function (error, results, fields) {
         if (error) throw error;
         console.log('results: ', results, "fields: ", fields);
         res.json(results);
